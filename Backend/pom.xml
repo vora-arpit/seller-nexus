@@ -9,11 +9,11 @@
 		<version>2.1.7.RELEASE</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.crm1</groupId>
+	<groupId>com.server.sellernexus</groupId>
 	<artifactId>sellerNexusApi</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>sellerNexusApi</name>
-	<description>Demo project for Spring Boot</description>
+	<description>SellerNexus - Multi-platform E-commerce Integration Platform</description>
 
 	<properties>
 		<java.version>11</java.version>
