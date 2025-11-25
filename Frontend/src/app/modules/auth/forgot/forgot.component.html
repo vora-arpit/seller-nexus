@@ -1,0 +1,39 @@
+<!-- <h3 class="text-center mgb-med">Recover Your Password</h3>
+<div class="register">
+  <form class="login__form mgb-med" [formGroup]="forgotForm" (ngSubmit)="verify()">
+    <label for="email" class="login__label">Email Address</label>
+    <div class="input-group mgb-small">
+      <span class="input-group__icon material-icons">email</span>
+      <input type="text" class="input-group__input" id="email" value="arpitvora09@gmail.com" formControlName="email"/>
+    </div>
+    <button type="button" (click)="send()" class="btn btn-primary btn-block">Send Verification Code</button>
+    <div class="mgt-small"></div>
+    <div class="input-group mgb-small">
+      <span class="input-group__icon material-icons">vpn_key</span>
+      <input type="number" class="input-group__input" formControlName="verificationCode" placeholder="Verification Code">
+    </div>
+    <button type="submit" id="linkbutton" class="btn btn-primary btn-block">Send Recover Link</button>
+  </form>
+  <div class="forgot__links">
+    <a routerLink="/auth/login">Go to Login page</a>
+    <a routerLink="/auth/register">Register</a>
+  </div>
+</div> -->
+
+
+<h3 class="text-center mgb-med">Recover Your Password</h3>
+<div class="register">
+  <form class="login__form mgb-med" [formGroup]="forgotForm">
+    <label for="email" class="login__label">Email Address</label>
+    <div class="input-group mgb-small">
+      <span class="input-group__icon material-icons">email</span>
+      <input type="email" class="input-group__input" id="email" formControlName="email" placeholder="Enter your email address">
+    </div>
+    <button type="button" (click)="onSubmit()" [disabled]="forgotForm.invalid" class="btn btn-primary btn-block">Send Verification Code</button>
+  </form>
+  <div class="forgot__links">
+    <a routerLink="/auth/login">Go to Login page</a>
+    <a routerLink="/auth/register">Register</a>
+  </div>
+</div>
+

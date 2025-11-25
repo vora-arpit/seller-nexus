@@ -1,0 +1,48 @@
+<div class="side-menu">
+  <div class="brand mgt-small mgb-med">
+    <img class="logo" src="/assets/images/sellernexus-logo.svg" width="220px" alt="SellerNexus Logo">
+  </div>
+  <div class="profile mgb-med">
+      <div class="profile__avatar">
+        <img src="{{ user?.imageUrl || '/assets/images/nouser.png' }}" alt="avatar" class="profile__pic">
+        <div class="profile__status"></div>
+      </div>
+      <h5 class="profile__name">{{ user?.name }}</h5>
+      <span class="text-muted">{{ user?.roles?.join(', ') }}</span>
+  </div>
+  <ul class="menu">
+    <li class="menu__item">
+      <a routerLink="/selernexus" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="menu__item--link-active" class="menu__item--link">
+        <mat-icon>link</mat-icon>
+        <span class="menu__item--link-text">JOOM Connect</span>
+      </a>
+    </li>
+    <li class="menu__item">
+      <a routerLink="/selernexus/joom-products" routerLinkActive="menu__item--link-active" class="menu__item--link">
+        <mat-icon>inventory_2</mat-icon>
+        <span class="menu__item--link-text">JOOM Products</span>
+      </a>
+    </li>
+    <li class="menu__item">
+      <a routerLink="/selernexus/joom-transfer" routerLinkActive="menu__item--link-active" class="menu__item--link">
+        <mat-icon>swap_horiz</mat-icon>
+        <span class="menu__item--link-text">Product Transfer</span>
+      </a>
+    </li>
+    <li class="menu__item">
+      <a routerLink="/selernexus/joom-transfer-logs" routerLinkActive="menu__item--link-active" class="menu__item--link">
+        <mat-icon>history</mat-icon>
+        <span class="menu__item--link-text">Transfer Logs</span>
+      </a>
+    </li>
+
+    <li class="menu__item" *ngIf="user?.roles?.includes('ADMIN')">
+      <a routerLink="/sellers" routerLinkActive="menu__item--link-active" class="menu__item--link">
+        <mat-icon>group</mat-icon>
+        <span class="menu__item--link-text">Sellers</span>
+      </a>
+    </li>
+  </ul>
+
+  <!-- {{ user | json }} -->
+</div>

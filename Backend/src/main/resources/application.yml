@@ -1,0 +1,84 @@
+logging:
+    pattern:
+      console: "%d{MM-dd HH:mm:ss} - %msg%n"
+
+spring:
+    datasource:
+        url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/sellernexus}
+        username: ${DATABASE_USERNAME:postgres}
+        password: ${DATABASE_PASSWORD:root}
+
+    jpa:
+        show-sql: true
+        hibernate:
+            ddl-auto: none
+            #naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        properties:
+            hibernate:
+                temp:
+                  use_jdbc_metadata_defaults: false
+        database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+        open-in-view: false
+    jackson:
+      date-format: yyyy-MM-dd HH:mm:ss
+    security:
+      oauth2:
+        client:
+          registration:
+            google:
+              clientId: ${GOOGLE_CLIENT_ID:your-google-client-id}
+              clientSecret: ${GOOGLE_CLIENT_SECRET:your-google-client-secret}
+              redirectUriTemplate: "{baseUrl}/oauth2/callback/{registrationId}"
+              scope:
+                - email
+                - profile
+            facebook:
+              clientId: ${FACEBOOK_CLIENT_ID:your-facebook-client-id}
+              clientSecret: ${FACEBOOK_CLIENT_SECRET:your-facebook-client-secret}
+              redirectUriTemplate: "{baseUrl}/oauth2/callback/{registrationId}"
+              scope:
+                - email
+                - public_profile
+            github:
+              clientId: ${GITHUB_CLIENT_ID:your-github-client-id}
+              clientSecret: ${GITHUB_CLIENT_SECRET:your-github-client-secret}
+              redirectUriTemplate: "{baseUrl}/oauth2/callback/{registrationId}"
+              scope:
+                - user:email
+                - read:user
+          provider:
+            facebook:
+              authorizationUri: https://www.facebook.com/v3.0/dialog/oauth
+              tokenUri: https://graph.facebook.com/v3.0/oauth/access_token
+              userInfoUri: https://graph.facebook.com/v3.0/me?fields=id,first_name,middle_name,last_name,name,email,verified,is_verified,picture.width(250).height(250)
+
+    mail:
+        host: ${MAIL_HOST:smtp.ethereal.email}
+        port: ${MAIL_PORT:587}
+        username: ${MAIL_USERNAME:your-email@ethereal.email}
+        password: ${MAIL_PASSWORD:your-email-password}
+        properties:
+          mail:
+            smtp:
+              auth: true
+              starttls:
+                enable: true
+                required: true
+
+app:
+  auth:
+    tokenSecret: ${JWT_SECRET:926D96C90030DD58429D2751AC1BDBBC}
+    tokenExpirationMsec: 864000000
+  oauth2:
+    # After successfully authenticating with the OAuth2 Provider,
+    # we'll be generating an auth token for the user and sending the token to the
+    # redirectUri mentioned by the client in the /oauth2/authorize request.
+    # We're not using cookies because they won't work well in mobile clients.
+    authorizedRedirectUris:
+      - http://localhost:4200/auth/oauth2/redirect
+      - myandroidapp://oauth2/redirect
+      - myiosapp://oauth2/redirect
+  upload:
+    path: "classpath:upload/"
+
+

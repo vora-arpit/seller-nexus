@@ -1,0 +1,79 @@
+<div class="account-overview panel white" *ngIf="account">
+  <h4>ACCOUNT OVERVIEW</h4>
+  <br />
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat__info">
+        <span class="stat__title text-semi-muted">Monthly Sales</span>
+        <h2 class="stat__number">
+          {{ account.monthlySalesCurrent | currency : 'INR' : 'symbol' : '1.0' }}
+        </h2>
+      </div>
+      <c-card class="mb-4">
+        <c-card-header>
+          Monthly Sales
+        </c-card-header>
+        <c-card-body>
+        <div class="stat__chart">
+          <c-chart type="doughnut" [data]="monthlySalesChartData"></c-chart>
+        </div>
+         </c-card-body>
+         </c-card>
+    </div>
+
+    <div class="stat">
+      <div class="stat__info">
+        <span class="stat__title text-semi-muted">Quarterly Sales</span>
+        <h2 class="stat__number">
+          {{ account.quarterlySalesCurrent | currency : 'INR' : 'symbol' : '1.0' }}
+        </h2>
+      </div>
+      <c-card class="mb-4">
+        <c-card-header>
+          Quarterly Sales
+        </c-card-header>
+        <c-card-body>
+      <div class="stat__chart">
+        <c-chart type="doughnut" [data]="quarterlySalesChartData"></c-chart>
+      </div>
+    </c-card-body>
+  </c-card>
+    </div>
+
+    <div class="stat">
+      <div class="stat__info">
+        <span class="stat__title text-semi-muted">Monthly Customers</span>
+        <h2 class="stat__number">{{ account.monthlyCustomersCurrent }}</h2>
+      </div>
+      <c-card class="mb-4">
+        <c-card-header>
+          Monthly Customers
+        </c-card-header>
+        <c-card-body>
+      <div class="stat__chart">
+        <c-chart type="doughnut" [data]="monthlyCustomersChartData"></c-chart>
+      </div>
+    </c-card-body>
+  </c-card> 
+    </div>
+
+    <div class="stat">
+      <div class="stat__info">
+        <span class="stat__title text-semi-muted">Quarterly Customers</span>
+        <h2 class="stat__number">{{ account.quarterlyCustomersCurrent }}</h2>
+      </div>
+
+      <c-card class="mb-4">
+        <c-card-header>
+          Quarterly Customers
+        </c-card-header>
+        <c-card-body>
+      <div class="stat__chart">
+        <c-chart type="doughnut" [data]="quarterlyCustomersChartData"></c-chart>
+      </div>
+    </c-card-body>
+  </c-card> 
+    </div>
+  </div>
+</div>

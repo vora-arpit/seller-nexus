@@ -1,0 +1,50 @@
+
+<div class="modal" [ngClass]="{ 'is-active': showModal }">
+    <div class="modal-background" (click)="toggleModal()"></div>
+    <div class="modal-content">
+      <div class="box">
+        <h2>Add Order</h2>
+        <form novalidate class="form">
+          <div class="grid-2 mgb-small">
+            <button class="btn btn-secondary" (click)="canceled()"><mat-icon>arrow_back</mat-icon></button>
+            <div class="panel white col">
+              <label class="label">Customer Id</label>
+              <div class="control">
+                <input class="input" type="number" [(ngModel)]="customerId" name="customerId">
+              </div>
+              <!-- <label class="label">Status</label>
+              <select [(ngModel)]="order.status" name="status">
+                <option value="">Select...</option>
+                <option *ngFor="let status of status" [value]="status">{{ status }}</option>
+              </select> -->
+              
+  
+              <label class="label">Order Item</label>
+              <div class="control">
+                <input class="input" type="number" [(ngModel)]="orderItemId" name="orderItemId">
+                <!-- Set the name attribute for ngModel -->
+              </div>
+              <!-- <label class="label">Order Item</label>
+              <div class="control">
+                <input class="input" type="number" [(ngModel)]="order.orderItems" name="Orderitem">
+                Set the name attribute for ngModel -->
+              <!-- </div> -->
+            </div>
+            <div class="panel white col">
+              <!-- <h4>Additional Info</h4> -->
+              <!-- Add additional fields if needed -->
+            </div>
+          </div>
+         
+          <div class="grid-2">
+            <div class="col text-right">
+              <button class="btn btn-primary" (click)="onSubmit()"><mat-icon>published_with_changes</mat-icon></button>
+              <button *ngIf="order.id" class="btn btn-secondary" (click)="deleteOrder()"><mat-icon>delete</mat-icon></button>
+            </div>
+          </div>
+          <!-- <button class="modal-close is-large" aria-label="close" (click)="toggleModal()"></button> -->
+        </form>
+      </div>
+    </div>
+  </div>
+  

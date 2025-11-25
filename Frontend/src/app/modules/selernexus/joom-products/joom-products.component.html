@@ -1,0 +1,109 @@
+<div class="joom-products">
+  <div class="page-header">
+    <h1 class="page-title">JOOM Products</h1>
+    <p class="page-subtitle">Browse and manage your JOOM marketplace products</p>
+  </div>
+
+  <mat-card class="controls-card">
+    <div class="controls-header">
+      <div class="controls-left">
+        <button mat-raised-button class="btn-gradient" (click)="refresh()" [disabled]="loading">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: middle;">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          Refresh
+        </button>
+
+        <div class="form-group">
+          <label for="credentialSelect">Account:</label>
+          <select id="credentialSelect" class="form-select" [(ngModel)]="selectedCredentialId" (change)="refresh()">
+            <option *ngFor="let c of credentials" [ngValue]="c.id">{{ c.label || ('Account ' + c.id) }}</option>
+          </select>
+        </div>
+
+        <div class="count-badge" *ngIf="!loading">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span><strong>{{ products.length }}</strong> products</span>
+        </div>
+      </div>
+
+      <div class="controls-right">
+        <mat-paginator [length]="total || products.length" [pageSize]="pageSize" [pageSizeOptions]="[25,50,100]" (page)="onPage($event)">
+        </mat-paginator>
+      </div>
+    </div>
+  </mat-card>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading products…</p>
+  </div>
+  
+  <div *ngIf="error" class="error-state">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && products.length === 0" class="empty-state">
+    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <h3>No products found</h3>
+    <p>Try selecting a different account or refresh the list</p>
+  </div>
+
+  <div class="products-grid" *ngIf="!loading && products.length > 0">
+    <mat-card *ngFor="let p of products" class="product-card">
+      <div class="product-image">
+        <img [src]="getImage(p)" [alt]="getTitle(p) || 'product'" />
+      </div>
+      <div class="product-details">
+        <h3 class="product-title">{{ getTitle(p) || ('ID: ' + (p.id || p.sku || '')) }}</h3>
+        
+        <div class="product-meta">
+          <div class="price-tag" *ngIf="formatPrice(p)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+            <span>{{ formatPrice(p) }}</span>
+          </div>
+          <div class="sku-badge" *ngIf="p?.sku">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+              <line x1="7" y1="7" x2="7.01" y2="7"></line>
+            </svg>
+            <span>{{ p.sku }}</span>
+          </div>
+        </div>
+
+        <p class="product-description" *ngIf="shortDesc(p)">{{ shortDesc(p, 180) }}</p>
+
+        <div class="product-actions">
+          <button mat-button class="btn-toggle" (click)="p._showRaw = !p._showRaw">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            {{ p._showRaw ? 'Hide' : 'Show' }} raw data
+          </button>
+        </div>
+
+        <div class="raw-data" *ngIf="p._showRaw">
+          <pre>{{ p | json }}</pre>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+</div>

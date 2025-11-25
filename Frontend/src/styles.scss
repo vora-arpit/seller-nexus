@@ -1,0 +1,392 @@
+/* You can add global styles to this file, and also import other style files */
+@import "variables";
+@import "../node_modules/ngx-spinner/animations/ball-scale-multiple.css";
+@import 'primeng/resources/themes/viva-dark/theme.css';
+@import url("https://fonts.googleapis.com/css?family=Roboto:400, 700");
+@import url("https://fonts.googleapis.com/css?family=Rubik:300, 400, 500, 700");
+// @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap');
+// @import "../node_modules/materialize-css/dist/css/materialize.min.css";
+@import "theme/styles/styles.min.css";
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-primary;
+  color: #111;
+  line-height: 1.6;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  
+  &::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 30%),
+      radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 35%),
+      radial-gradient(circle at 40% 80%, rgba(102, 126, 234, 0.2) 0%, transparent 25%),
+      radial-gradient(circle at 60% 20%, rgba(118, 75, 162, 0.15) 0%, transparent 30%);
+    pointer-events: none;
+    z-index: 0;
+    animation: floatBackground 20s ease-in-out infinite;
+  }
+  
+  &::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+}
+
+@keyframes floatBackground {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(30px, -30px) rotate(1deg); }
+  66% { transform: translate(-20px, 20px) rotate(-1deg); }
+}
+
+h1,h2,h3,h4,h5,h6{
+  font-family: $font-display;
+}
+
+h5{
+  font-size: 15px;
+  color: white;
+}
+
+.mgb-small { margin-bottom: 1rem; }
+.mgb-med { margin-bottom: 2rem; }
+.mgb-big { margin-bottom: 3rem; }
+.mgt-small { margin-top: 1rem; }
+.mgt-med { margin-top: 2rem; }
+.mgt-big { margin-top: 3rem; }
+
+
+
+
+.btn {
+  font-weight: bolder;
+  padding: .6rem 1.4rem;
+  border: 1px solid #ddd;
+  font-size: 1.2rem;
+  border-radius: 2px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: rgb(19 51 98);
+  color: #fff;
+}
+
+.btn-secondary {
+  background-color: Red;
+  color: #fff;
+}
+
+.btn-primary[disabled] {
+  background-color: rgb(19 51 98);
+  color: #fff;
+}
+
+.btn-block {
+  width: 100%;
+  height: 100%;
+}
+
+
+.fbox-align-center {
+  align-self: center;
+}
+.text-right{
+  text-align: right
+}
+.text-center {
+  text-align: center;
+}
+.text-muted {
+  color:rgba(255, 255, 255, 0.87);;
+}
+.text-semi-muted {
+  color:#888;
+}
+.text-white{
+  color: white;
+}
+.text-red{
+  color: $color-primary;
+}
+.text-xs{
+  font-size: 10px;
+  color: black;
+}
+
+.facebook {
+  background-color: #3b5998;
+  color: #fff;
+}
+
+.twitter {
+  background-color: #00aced;
+  color: #fff;
+}
+.google {
+  background-color: #dd4b39;
+  color: #fff;
+}
+
+.input-group {
+  display: flex;
+  font-size: 1rem;
+
+  &__icon {
+    height: 45px;
+    line-height: 45px;
+    text-align: center;
+    width: 10%;
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  &__input {
+    height: 45px;
+    line-height: 45px;
+    width: 90%;
+    outline: none;
+    padding: 5px 10px;
+    font-size: 1.2rem;
+    border: 1px solid #ddd;
+  }
+}
+
+.alert {
+  padding: 5px 10px;
+  border-radius: 2px;
+  margin: 10px 0px;
+}
+.alert-error {
+  background-color: #f37f70;
+  border: 1px solid #974136;
+}
+
+.invalid-feedback{
+  color: $color-primary-light;
+}
+
+.is-invalid {
+  border: 1px solid $color-primary-light
+}
+
+.wrap {
+  display: flex;
+}
+
+.content-page {
+  width: 100%;
+  margin: 30px 30px 5px 30px;
+  border: 1px solid inherit;
+  background-color: #c0caf2;
+  border-radius: 15px;
+}
+
+.green {
+  background-color: rgb(73, 158, 73);
+}
+.violet {
+  background-color: rgb(131, 73, 158);
+}
+.indigo {
+  background-color: rgb(73, 99, 158);
+}
+
+.label {
+  padding: 5px;
+  border-radius: 2px;
+}
+
+.panel {
+  padding: 15px 15px;
+  border-radius: 10px; 
+  margin: 20px;
+  margin-top: 30px;
+  background-color: rgb(161 174 226 / 38%);
+}
+
+.show {
+  display: block;
+  opacity: 1;
+  transition: all .3s;
+}
+
+.hide {
+  display: none;
+  opacity: 0;
+  transition: all .3s;
+}
+
+.icon-small > svg {
+  height: 20px;
+  width: 20px;
+}
+
+
+// SIMPLE GRID //
+.grid {
+  display: flex;
+  margin: 0 0 20px 0;
+}
+.grid .col {
+  flex: 1;
+}
+.grid-4, .grid-3, .grid-2 {
+  display: flex;
+  justify-content: space-between;
+}
+.grid-2 .col {
+  width: 49%;
+}
+.grid-3 .col {
+  width: 32%;
+}
+.grid-4 .col {
+  width: 24%;
+}
+@media (max-width: 900px) {
+  .grid,
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    display: block;
+    .col {
+      width: 100%;
+      margin: 0 0 10px 0;
+    }
+  }
+}
+
+/** FORM STYLES **/
+.form {
+  label {
+    display: block;
+    font-weight: bold;
+    color: #777;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 10px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.54);
+    border-radius: 3px;
+    font-size: 14px;
+    background-color: inherit;
+    color:black
+  }
+  button,a {
+    margin: 0px 5px;
+  }
+  .date-input{
+    width: inherit;
+  }
+}
+input.ng-dirty.ng-invalid,
+textarea.ng-dirty.ng-invalid,
+select.ng-dirty.ng-invalid {
+  border: 2px solid rgba(255, 0, 0, 0.31);
+  outline: none;
+}
+
+.input-error-msg {
+  color: $color-primary;
+}
+
+.mat-simple-snackbar-action{ 
+  color:#fff
+}
+.success-msg {
+  background-color: #7cdd5f;
+  color: #000;
+}
+.error-msg {
+  background-color: #ff6464;
+  color: #000;
+
+}
+
+
+/* TABLE STYLES */
+.table {
+  border-radius: 20px;
+  overflow: hidden;;
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+  text-align: left;
+  border-radius: 20px;
+}
+
+.table > tbody {
+  font-size: 15px;
+}
+
+/* Light color for even rows */
+.table > tbody > tr:nth-child(even) {
+  background-color: #aeaee0;
+}
+
+/* Dark color for odd rows */
+.table > tbody > tr:nth-child(odd) {
+  background-color: #9ba6de;
+}
+
+.table > thead > tr > th {
+  border-top: 1px solid rgba(100, 100, 100, 0.2);
+  border-bottom: 2px solid rgba(100, 100, 100, 0.2);
+  padding: 5px 0px;
+ 
+}
+
+.table > tbody > tr > td {
+  padding: 10px 2px;
+  border-bottom: 1px solid rgba(100, 100, 100, 0.2);
+}
+
+.align-right {
+  text-align: right;
+}
+.align-center {
+  text-align: center;
+}
+
+.table-hover-striped tbody tr:hover {
+  background-color: rgba(150,150,150,.1);
+}
+
+
+
+.table input[type="checkbox"] {
+  width: 30px;
+  height: 30px;
+}
+
+a {
+  color: black; /* Specify the color you want */
+}

@@ -1,0 +1,13 @@
+.register__links {
+    display: flex;
+    justify-content: space-between;
+  }
+  #register-btn {
+    background-color: #0e1d39; /* Set the background color to green */
+    color: white; /* Set the text color to white */
+  }
+  
+  /* Additional styles for hover effect */
+  #register-btn:hover {
+    background-color: darkgreen; /* Change the background color on hover */
+  }

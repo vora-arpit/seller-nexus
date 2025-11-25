@@ -1,0 +1,42 @@
+
+
+<div class="panel white mgt-med mgb-med" [ngClass]="{ 'is-active': showModal }">
+  <div class="grid-2" (click)="toggleModal()"></div>
+  <div class="modal-content">
+    <div class="box">
+      <h2>Edit Order Item</h2>
+      
+      <form novalidate class="form">
+        <div class="grid-2 mgb-small">
+          
+        <div class="panel white col">
+          <label class="label">Price</label>
+          <div class="control">
+            <input class="input" type="number" [(ngModel)]="orderItem.price" name="price">
+          </div>
+          <label class="label">Quantity</label>
+          <div class="control">
+            <input class="input" type="number" [(ngModel)]="orderItem.quantity" name="quantity">
+          </div>
+          <label class="label">Product</label>
+          <div class="control">
+            <input class="input" type="number" [(ngModel)]="productId" name="productId">
+          </div>
+        </div>
+      </div>
+     
+  <div class="grid-2">
+    <!-- <div class="col">
+      <a *ngIf="orderItem.id" class="btn btn-secondary" (click)="confirmDelete()">Delete</a>
+    </div> -->
+    <div class="col text-right">
+      <a class="btn btn-secondary" (click)="canceled()">Cancel</a>
+      <button class="btn btn-primary" (click)="onSubmit()">Save</button>
+    </div>
+  </div>
+  <button class="modal-close is-large" aria-label="close" (click)="toggleModal()"></button>
+</form>
+</div>
+</div>
+</div>
+

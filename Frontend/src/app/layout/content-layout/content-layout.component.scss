@@ -1,0 +1,12 @@
+.wrap {
+  display: flex;
+  position: relative;
+}
+
+.content-page {
+  margin-left: 290px;
+  width: calc(100% - 260px);
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}

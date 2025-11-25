@@ -1,0 +1,102 @@
+<div class="logs-container">
+  <div class="header">
+    <h2>Transfer Logs</h2>
+    <button class="btn-refresh" (click)="loadLogs()" [disabled]="loading">
+      {{ loading ? 'Loading...' : 'Refresh' }}
+    </button>
+  </div>
+
+  <div class="filters">
+    <label>Status:</label>
+    <select [(ngModel)]="statusFilter" (change)="applyFilter()">
+      <option value="ALL">All</option>
+      <option value="SUCCESS">Success</option>
+      <option value="FAILED">Failed</option>
+      <option value="PENDING">Pending</option>
+    </select>
+    <span class="count">{{ filteredLogs.length }} log(s)</span>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="logs-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Status</th>
+          <th>Source Product</th>
+          <th>Target Product</th>
+          <th>Started</th>
+          <th>Duration</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let log of filteredLogs">
+          <tr class="log-row" [class.expanded]="expandedLogId === log.id">
+            <td>{{ log.id }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusClass(log.status)">
+                {{ log.status }}
+              </span>
+            </td>
+            <td>
+              <span class="product-id">{{ log.sourceProductExtId || 'N/A' }}</span>
+            </td>
+            <td>
+              <span class="product-id">{{ log.targetProductExtId || 'N/A' }}</span>
+            </td>
+            <td class="date">{{ formatDate(log.startedAt) }}</td>
+            <td>{{ formatDuration(log.durationMs) }}</td>
+            <td>
+              <button class="btn-expand" (click)="toggleExpand(log.id)">
+                {{ expandedLogId === log.id ? 'Hide' : 'Details' }}
+              </button>
+            </td>
+          </tr>
+          <tr class="details-row" *ngIf="expandedLogId === log.id">
+            <td colspan="7">
+              <div class="details-content">
+                <div class="detail-section">
+                  <h4>General Info</h4>
+                  <div class="info-grid">
+                    <div><strong>Platform:</strong> {{ log.platformName }}</div>
+                    <div><strong>Seller ID:</strong> {{ log.sellerId }}</div>
+                    <div><strong>Source Credential:</strong> {{ log.sourceCredentialId || 'N/A' }}</div>
+                    <div><strong>Target Credential:</strong> {{ log.targetCredentialId || 'N/A' }}</div>
+                    <div><strong>Started:</strong> {{ formatDate(log.startedAt) }}</div>
+                    <div><strong>Finished:</strong> {{ formatDate(log.finishedAt) }}</div>
+                  </div>
+                  <div class="message" *ngIf="log.message">
+                    <strong>Message:</strong> {{ log.message }}
+                  </div>
+                  <div class="error" *ngIf="log.errorMessage">
+                    <strong>Error:</strong> {{ log.errorMessage }}
+                  </div>
+                </div>
+
+                <div class="detail-section" *ngIf="log.requestPayload">
+                  <div class="section-header">
+                    <h4>Request Payload</h4>
+                    <button class="btn-copy" (click)="copyToClipboard(log.requestPayload!)">Copy</button>
+                  </div>
+                  <pre class="json-display">{{ parseJson(log.requestPayload) | json }}</pre>
+                </div>
+
+                <div class="detail-section" *ngIf="log.responsePayload">
+                  <div class="section-header">
+                    <h4>Response Payload</h4>
+                    <button class="btn-copy" (click)="copyToClipboard(log.responsePayload!)">Copy</button>
+                  </div>
+                  <pre class="json-display">{{ parseJson(log.responsePayload) | json }}</pre>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+        <tr *ngIf="filteredLogs.length === 0 && !loading">
+          <td colspan="7" class="no-data">No transfer logs found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

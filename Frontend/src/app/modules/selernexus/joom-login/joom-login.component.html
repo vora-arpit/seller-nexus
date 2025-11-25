@@ -1,0 +1,101 @@
+<div class="container">
+  <div class="page-header">
+    <h2>Connect JOOM Accounts</h2>
+    <p class="subtitle">Manage your JOOM marketplace integrations</p>
+  </div>
+
+  <div class="connect-card">
+    <h3>Add New Account</h3>
+    <div class="connect-form">
+      <div class="form-group">
+        <label>
+          Email (label)
+          <span class="info-icon" title="Enter a friendly name/email to identify this account in your dashboard">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </span>
+        </label>
+        <input type="text" [(ngModel)]="labelEmail" placeholder="e.g., shop@mystore.com or Main Store" />
+      </div>
+
+      <div class="form-group">
+        <label>
+          Client ID
+          <span class="info-icon" title="Get this from JOOM Merchant Dashboard → Settings → API → Create Application">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </span>
+        </label>
+        <input type="text" [(ngModel)]="clientId" placeholder="Your JOOM Client ID from API settings" />
+      </div>
+
+      <div class="form-group">
+        <label>
+          Client Secret <span class="optional">(optional)</span>
+          <span class="info-icon" title="Get this from the same JOOM API settings page. Only needed for custom OAuth applications.">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </span>
+        </label>
+        <input type="password" [(ngModel)]="clientSecret" placeholder="Leave empty if using default credentials" />
+      </div>
+
+      <button class="btn-connect" (click)="connectJoom()" [disabled]="connecting">
+        {{ connecting ? 'Connecting...' : 'Connect JOOM Account' }}
+      </button>
+    </div>
+
+    <p class="message" *ngIf="message" [class.error]="message.includes('❌')">{{ message }}</p>
+  </div>
+
+  <div class="accounts-section">
+    <h3>Connected Accounts</h3>
+    <div class="empty-state" *ngIf="credentials.length === 0">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <p>No accounts connected yet</p>
+      <span>Connect your first JOOM account above</span>
+    </div>
+    
+    <div class="credentials-grid">
+      <div class="credential-card" *ngFor="let c of credentials">
+        <div class="card-header">
+          <div class="account-info">
+            <h4>{{ c.label || ('Account ' + c.id) }}</h4>
+            <span class="status-badge active">
+              <span class="dot"></span> Connected
+            </span>
+          </div>
+          <button class="btn-remove" (click)="deleteCredential(c.id)" title="Remove account">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="card-body">
+          <div class="info-row">
+            <span class="label">Merchant ID</span>
+            <span class="value">{{ c.externalMerchantId }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Connected</span>
+            <span class="value">{{ c.createdAt | date:'medium' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,53 @@
+<div class="container">
+  <div class="header-row">
+    <h2>Transfer One Product between JOOM Accounts</h2>
+    <a routerLink="/selernexus/joom-transfer-logs" class="link-logs">View Transfer Logs</a>
+  </div>
+
+  <div class="form-grid">
+    <div class="form-row">
+      <label>Source Account</label>
+      <select [(ngModel)]="srcCredentialId">
+        <option *ngFor="let c of credentials" [ngValue]="c.id">{{ c.label || ('Account ' + c.id) }}</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Target Account</label>
+      <select [(ngModel)]="tgtCredentialId">
+        <option *ngFor="let c of credentials" [ngValue]="c.id">{{ c.label || ('Account ' + c.id) }}</option>
+      </select>
+    </div>
+
+    <div class="form-row wide">
+      <label>Source Product ID</label>
+      <input type="text" [(ngModel)]="srcProductId" placeholder="source product id" />
+    </div>
+
+    <div class="form-row actions">
+      <button class="btn" (click)="transferOne()" [disabled]="loading">{{ loading ? 'Transferring...' : 'Transfer 1 Product' }}</button>
+    </div>
+  </div>
+
+  <div class="message-row">
+    <div *ngIf="message" class="status">{{ message }}</div>
+    <div *ngIf="errorMsg" class="error">{{ errorMsg }}</div>
+  </div>
+
+  <div *ngIf="response" class="result">
+    <div class="result-header">
+      <strong>Transfer Response</strong>
+      <button class="small" (click)="copyResponse()">Copy</button>
+    </div>
+    <pre>{{ response | json }}</pre>
+  </div>
+
+  <div *ngIf="errorMsg && !response" class="result error-panel">
+    <div class="result-header">
+      <strong>Error Details</strong>
+      <button class="small" (click)="copyError()">Copy</button>
+    </div>
+    <pre>{{ errorMsg }}</pre>
+  </div>
+
+</div>

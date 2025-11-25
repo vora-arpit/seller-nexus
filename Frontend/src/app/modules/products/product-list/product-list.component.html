@@ -1,0 +1,35 @@
+<div class="panel white mgt-med mgb-med">
+  <div class="grid-2">
+    <div class="form col">
+      <input type="text" placeholder="Filter..." #filterInput>
+    </div>
+    <div class="col text-right">
+      <button routerLink="new" class="btn btn-primary"><mat-icon>add</mat-icon></button>
+    </div>
+  </div>
+  <table class="table table-hover-striped mgt-small">
+    <thead>
+      <tr>
+        <th style="width: 10%" class="align-center">#</th>
+        <th style="width: 40%">Name</th>
+        <th style="width: 20%">Price</th>
+        <th style="width: 20%">Quantity in Stock</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of pagedProducts; let i = index">
+        <td class="align-center">{{ product.id }}</td>
+        <td>
+          <a routerLink="{{ product.id }}">{{ product.name }}</a>
+        </td>
+        <td>{{ product.price | currency:'INR':'symbol':'1.2-2' }}</td>
+        <td>{{ product.quantityInStock }}</td>
+      </tr>
+    </tbody>
+  </table>
+      <mat-paginator class="matpagination" [length]="products.length"
+        [pageSize]="itemsPerPage"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        (page)="onPageChange($event)">
+      </mat-paginator>
+</div>

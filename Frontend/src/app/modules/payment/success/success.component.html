@@ -1,0 +1,15 @@
+<div class="center-content">
+  <section>
+    <img src="/assets/images/newlogovertical.png" alt="Logo" height="100px" style="border-radius: 10px;">
+    <h2 style="margin-left: -20px;">Your Payment is Successful!</h2>
+    <p style="margin-left: -160px;">
+      We appreciate your business! If you have any questions, please email
+      <a href="mailto:bizerp@gmail.com">bizerp&#64;gmail.com</a>.
+    </p>
+    <div *ngIf="order">
+      <!-- <h3>Invoice</h3> -->
+      <!-- <iframe [src]="invoiceUrl" width="100%" height="500px" frameborder="0"></iframe> -->
+      <button style="margin-top: 10px; margin-left: -25px;" class="btn btn-secondary" (click)="downloadInvoice()">Click here to Download Invoice</button>
+    </div>
+  </section>
+</div>

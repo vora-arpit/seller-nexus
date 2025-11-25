@@ -1,0 +1,47 @@
+
+<div class="modal" [ngClass]="{ 'is-active': showModal }">
+  <div class="modal-background" (click)="toggleModal()"></div>
+  <div class="modal-content">
+    <div class="box">
+      <h2>Add Order</h2>
+      <form novalidate class="form">
+        <div class="grid-2 mgb-small">
+          <div class="panel white col">
+            <label class="label">Customer Id</label>
+            <div class="control">
+              <input class="input" type="number" [(ngModel)]="customerId" name="customerId">
+              <!-- Set the name attribute for ngModel -->
+            </div>
+            <label class="label">Status</label>
+            <select [(ngModel)]="order.status" name="status">
+              <!-- Set the name attribute for ngModel -->
+              <option value="">Select...</option>
+              <option *ngFor="let status of status" [value]="status">{{ status }}</option>
+              <!-- Make sure each option value corresponds to the status value -->
+            </select>
+            
+
+            <label class="label">Order Item</label>
+            <div class="control">
+              <input class="input" type="number" [(ngModel)]="orderItemId" name="orderItemId">
+              <!-- Set the name attribute for ngModel -->
+            </div>
+            <!-- <label class="label">Order Item</label>
+            <div class="control">
+              <input class="input" type="number" [(ngModel)]="order.orderItems" name="Orderitem">
+              Set the name attribute for ngModel -->
+            <!-- </div> -->
+          </div>
+        </div>
+       
+        <div class="grid-2">
+          <div class="col text-right">
+            <a class="btn btn-secondary" (click)="canceled()">Cancel</a>
+            <button class="btn btn-primary" (click)="onSubmit()">Edit Item</button>
+          </div>
+        </div>
+        <button class="modal-close is-large" aria-label="close" (click)="toggleModal()"></button>
+      </form>
+    </div>
+  </div>
+</div>

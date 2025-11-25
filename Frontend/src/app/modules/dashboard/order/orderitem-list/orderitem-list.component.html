@@ -1,0 +1,41 @@
+
+
+<div class="panel white mgt-med mgb-med">
+  <div class="grid-2">
+    <div class="form col">
+      <input type="text" placeholder="Filter..." #filterInput>
+    </div>
+    <div class="col text-right">
+      <a routerLink="orderitem/new" class="btn btn-primary">Add OrderItem</a>
+    </div>
+  </div>
+  <div class="order-info">
+    <p>Order ID: {{ orderId }}</p>
+  </div>
+  <table class="table table-hover-striped mgt-small">
+    <thead>
+      <tr>
+        <th style="width: 10%" class="align-center">#</th>
+        <th style="width: 10%">Price</th>
+        <th style="width: 10%">Quantity</th>
+        <th style="width: 30%">Product Name</th>
+        <th style="width: 10%">Product Price</th>
+        <th style="width: 10%" class="align-center">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let orderItem of orderItems">
+        <td class="align-center">{{ orderItem.id }}</td>
+        <td>{{ orderItem.price }}</td>
+        <td>{{ orderItem.quantity }}</td>
+        <td>{{ orderItem.product?.name }}</td>
+        <td>{{ orderItem.product?.price }}</td>
+        <td class="align-center">
+          <div class="col text-right">
+            <a routerLink="{{orderItem.id}}" class="btn btn-primary">Edit Item</a>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
