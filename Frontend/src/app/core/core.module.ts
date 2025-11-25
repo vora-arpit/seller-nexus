@@ -4,7 +4,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthGuard } from './guards/auth.guard';
 import { ErrorInterceptor, JwtHttpInterceptor } from './interceptors';
 import { ClientErrorHandler } from './interceptors/client.error.handler';
-import { AuthService, CustomerService, DashboardService, NotificationService, UserService } from './services';
+import { AuthService, NotificationService, UserService } from './services';
 
 
 
@@ -22,8 +22,6 @@ import { AuthService, CustomerService, DashboardService, NotificationService, Us
     AuthGuard,
     UserService,
     AuthService,
-    DashboardService,
-    CustomerService,
     NotificationService
   ],
 })

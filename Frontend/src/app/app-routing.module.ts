@@ -17,37 +17,10 @@ const routes: Routes = [
     component: ContentLayoutComponent,
     canActivate: [AuthGuard],
     children: [
-
-      {
-        path: 'dashboard',
-        loadChildren: () =>
-          import('./modules/dashboard/dashboard.module').then(m => m.DashboardModule)
-      },
       {
         path: 'selernexus',
         loadChildren: () =>
           import('./modules/selernexus/selernexus.module').then(m => m.SellerNexusModule)
-      },
-      {
-        path: 'customers',
-        loadChildren: () =>
-          import('./modules/customers/customers.module').then(m => m.CustomersModule)
-      },
-      {
-        path: 'products',
-        loadChildren: () =>
-          import('./modules/products/products.module').then(m => m.ProductsModule)
-      },
-
-      {
-        path: 'order',
-        loadChildren: () =>
-          import('./modules/orderitem/orderitem.module').then(m => m.OrderitemModule)
-      },
-      {
-        path:'payment',
-        loadChildren:()=>
-          import ('./modules/payment/payment.module').then(m=>m.PaymentModule)
       },
       {
         path: 'sellers',
