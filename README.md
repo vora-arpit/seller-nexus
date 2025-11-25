@@ -1,29 +1,160 @@
-📊 Business ERP Application
-Welcome to our Business ERP Application repository! This comprehensive enterprise resource planning (ERP) system is designed to streamline your business operations and enhance productivity. Built with Angular for the frontend and Java for the backend, our application offers a seamless user experience coupled with robust backend functionality.
+# SellerNexus
 
-Features
-🚀 Intuitive User Interface: Enjoy a modern and user-friendly interface designed with Angular, providing smooth navigation and a delightful user experience.
+**Unifying multi-platform selling through seamless API integration.**
 
-🔒 Secure Authentication: Ensure the security of your data with our robust authentication system, keeping your business information safe from unauthorized access.
+[![Java](https://img.shields.io/badge/Java-11-orange.svg)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.1.7-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Angular](https://img.shields.io/badge/Angular-15-red.svg)](https://angular.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Latest-blue.svg)](https://www.postgresql.org/)
 
-💼 Comprehensive Modules: Our ERP application covers a wide range of modules
+---
 
-Getting Started
-To get started with our ERP application, follow these steps:
+## 🛒 E-Commerce Product Transfer Interface
 
-Clone the Repository: git clone https://github.com/vora-arpit/BizERP.git
+### 📖 Project Overview
 
-Install Dependencies: Navigate to the frontend and backend directories and install dependencies using npm (for Angular) and Maven (for Java).
+**SellerNexus** is a comprehensive startup application that enables sellers to seamlessly transfer all product listings from one e-commerce platform (e.g., "Joom", "Flipkart", "Shopify") to another using official APIs of both platforms.
 
-Run the Application: Start the frontend and backend servers to launch the application locally.
+It provides a **full-stack interface** for sellers to:
+- 🔐 Register and authenticate securely
+- 🔗 Link their e-commerce platform accounts via OAuth2
+- 📦 View and manage product inventories across platforms
+- 🔄 Transfer products between platforms with variant mapping
+- 📊 Monitor transfer logs and audit trails
+- ⚙️ Manage API credentials and platform connections
 
-Explore and Customize: Explore the different modules and features of the ERP application
+---
 
-Contributing
-We welcome contributions from the community to enhance the functionality and usability of our ERP application. If you'd like to contribute, please fork the repository and submit a pull request with your changes.
+## 🏗️ System Architecture
 
-Support
-For any questions or issues regarding the application, please open a new issue on GitHub, and we'll be happy to assist you.
+### 🧩 Key Components
 
-License
-This project is licensed under the MIT License - see the LICENSE file for details.
+| Layer | Technology | Description |
+|-------|-----------|-------------|
+| **Frontend** | Angular 15, TypeScript, Material Design | Provides a responsive seller dashboard for registration, login, OAuth linking, product management, and monitoring transfer logs. |
+| **Backend** | Spring Boot 2.1.7, Java 11 | Core business logic handling authentication (JWT), OAuth2 flows, product fetching/creation, validation, and API-to-API transfers. |
+| **Database** | PostgreSQL, Flyway | Stores seller information, platform credentials, products, transfer logs with complete audit trail. |
+| **Testing** | JUnit 5, Mockito, AssertJ | Comprehensive unit and integration tests validating every service layer component (76 test cases). |
+
+---
+
+## 🧪 Testing Strategy
+
+### 🧩 Unit Tests
+
+Each service method is validated through **JUnit 5** unit tests with **Mockito** for dependency mocking.
+
+**Test Location**: `Backend/src/test/java/com/server/sellernexus/service/sellerNexus/`
+
+**Test Coverage**:
+
+| Test Class | Test Cases | Coverage |
+|-----------|------------|----------|
+| `JoomAuthServiceTest` | 16 | OAuth flows, token management, state signing |
+| `JoomProductServiceTest` | 18 | Product CRUD, pagination, image extraction |
+| `JoomTransferServiceTest` | 11 | Transfer logic, variant mapping, error handling |
+| `TransferLogServiceTest` | 14 | Logging, audit trail, data masking |
+| `PlatformCredentialServiceTest` | 17 | Credential management, deduplication |
+
+**Total**: **76 test cases** covering all critical service layer functionality.
+
+### 🎯 Test Execution
+
+```bash
+# Run all tests
+cd Backend
+mvn test
+
+# Run specific test class
+mvn test -Dtest=JoomAuthServiceTest
+
+## 🚀 Getting Started
+
+### Prerequisites
+- **Java 11** or higher
+- **Node.js 16+** and npm
+- **PostgreSQL 12+**
+- **Maven 3.8+**
+
+### Installation
+
+1. **Clone the Repository**
+```bash
+git clone https://github.com/vora-arpit/seller-nexus.git
+cd seller-nexus
+```
+
+2. **Database Setup**
+```bash
+psql -U postgres
+CREATE DATABASE sellernexus;
+\q
+```
+
+3. **Backend Configuration**
+
+Create `.env` file in `Backend/` directory:
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=sellernexus
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
+
+JWT_SECRET=your_jwt_secret_key
+AUTH_TOKEN_SECRET=your_hmac_secret
+
+JOOM_CLIENT_ID=your_joom_client_id
+JOOM_CLIENT_SECRET=your_joom_client_secret
+```
+
+4. **Run Backend**
+```bash
+cd Backend
+mvn clean install
+mvn spring-boot:run
+```
+Backend starts at `http://localhost:8080`
+
+5. **Run Frontend**
+```bash
+cd Frontend
+npm install
+ng serve
+```
+Frontend starts at `http://localhost:4200`
+
+---
+
+## 📊 API Documentation
+
+API documentation available via Swagger UI:  
+🔗 **http://localhost:8080/swagger-ui.html**
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 👨‍💻 Author
+
+**Arpit Vora**
+- GitHub: [@vora-arpit](https://github.com/vora-arpit)
+- Repository: https://github.com/vora-arpit/seller-nexus
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License.
+
+---
+
+**⭐ If you find this project helpful, please consider giving it a star!**
