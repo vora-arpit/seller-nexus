@@ -1,0 +1,254 @@
+@startuml
+title Seller Nexus - Class Diagram with Design Patterns
+
+' ===== DESIGN PATTERN 1: SINGLETON =====
+package "Singleton Pattern" #LightBlue {
+    class ApiClientConfigManager <<Singleton>> {
+        - {static} INSTANCE: ApiClientConfigManager
+        - restTemplate: RestTemplate
+        - objectMapper: ObjectMapper
+        - ApiClientConfigManager()
+        + {static} getInstance(): ApiClientConfigManager
+        + getRestTemplate(): RestTemplate
+        + getObjectMapper(): ObjectMapper
+        - initializeConfiguration(): void
+    }
+    note right of ApiClientConfigManager
+        **SINGLETON PATTERN**
+        Thread-safe lazy initialization
+        Single configuration instance
+        for all API clients
+    end note
+}
+
+' ===== DESIGN PATTERN 2: BUILDER =====
+package "Builder Pattern" #LightGreen {
+    class PlatformCredential {
+        - id: Long
+        - platform: String
+        - seller: User
+        - accessToken: String
+        - refreshToken: String
+        - expiresIn: Integer
+        - expiryTime: Long
+        - externalMerchantId: String
+        - apiKey: String
+        - apiSecret: String
+        + {static} builder(): Builder
+    }
+    
+    class "PlatformCredential.Builder" as Builder {
+        - id: Long
+        - platform: String
+        - seller: User
+        - accessToken: String
+        + id(Long): Builder
+        + platform(String): Builder
+        + seller(User): Builder
+        + accessToken(String): Builder
+        + refreshToken(String): Builder
+        + build(): PlatformCredential
+    }
+    
+    PlatformCredential +-- Builder
+    note right of Builder
+        **BUILDER PATTERN**
+        Fluent interface for
+        complex object construction
+    end note
+}
+
+' ===== DESIGN PATTERN 3: OBSERVER =====
+package "Observer Pattern" #LightYellow {
+    class TransferEventPublisher <<Subject>> {
+        - eventPublisher: ApplicationEventPublisher
+        + publishTransferStarted(sellerId, source, dest, total): void
+        + publishProductUploaded(sellerId, productId, processed, total): void
+        + publishTransferCompleted(sellerId, total, success, fail): void
+        + publishTransferFailed(sellerId, errorMessage): void
+    }
+    
+    class TransferEvent <<Event>> {
+        - sellerId: Integer
+        - status: TransferStatus
+        - message: String
+        - sourcePlatform: String
+        - destinationPlatform: String
+        - productId: String
+        - totalProducts: Integer
+        - processedProducts: Integer
+        + getProgressPercentage(): double
+    }
+    
+    enum TransferStatus {
+        STARTED
+        FETCHING_PRODUCTS
+        PRODUCTS_FETCHED
+        PRODUCT_UPLOADED
+        PRODUCT_FAILED
+        COMPLETED
+        FAILED
+    }
+    
+    class TransferEventListener <<Observer>> {
+        + handleTransferEvent(event: TransferEvent): void
+        - handleTransferStarted(event): void
+        - handleProductUploaded(event): void
+        - handleTransferCompleted(event): void
+    }
+    
+    TransferEventPublisher ..> TransferEvent : publishes
+    TransferEvent --> TransferStatus : uses
+    TransferEventListener ..> TransferEvent : observes
+    
+    note right of TransferEventPublisher
+        **OBSERVER PATTERN**
+        Decoupled event-driven
+        notifications for transfers
+    end note
+}
+
+' ===== DESIGN PATTERN 4: FACTORY =====
+package "Factory Pattern" #LightCoral {
+    class OAuth2UserInfoFactory <<Factory>> {
+        + {static} getOAuth2UserInfo(registrationId: String, attributes: Map): OAuth2UserInfo
+    }
+    
+    abstract class OAuth2UserInfo {
+        # attributes: Map<String, Object>
+        + {abstract} getId(): String
+        + {abstract} getName(): String
+        + {abstract} getEmail(): String
+        + {abstract} getImageUrl(): String
+    }
+    
+    class GoogleOAuth2UserInfo {
+        + getId(): String
+        + getName(): String
+        + getEmail(): String
+        + getImageUrl(): String
+    }
+    
+    class FacebookOAuth2UserInfo {
+        + getId(): String
+        + getName(): String
+        + getEmail(): String
+        + getImageUrl(): String
+    }
+    
+    class GithubOAuth2UserInfo {
+        + getId(): String
+        + getName(): String
+        + getEmail(): String
+        + getImageUrl(): String
+    }
+    
+    OAuth2UserInfoFactory ..> OAuth2UserInfo : creates
+    OAuth2UserInfo <|-- GoogleOAuth2UserInfo
+    OAuth2UserInfo <|-- FacebookOAuth2UserInfo
+    OAuth2UserInfo <|-- GithubOAuth2UserInfo
+    
+    note right of OAuth2UserInfoFactory
+        **FACTORY PATTERN**
+        Creates provider-specific
+        OAuth user info objects
+    end note
+}
+
+' ===== DESIGN PATTERN 5: STRATEGY =====
+package "Strategy Pattern" #Lavender {
+    interface PlatformApiStrategy <<Strategy>> {
+        + getPlatformName(): String
+        + fetchProducts(credential, page, pageSize): Map
+        + fetchProductById(credential, productId): Map
+        + createProduct(credential, productData): Map
+        + updateProduct(credential, productId, productData): Map
+        + deleteProduct(credential, productId): boolean
+        + validateCredentials(credential): boolean
+    }
+    
+    class JoomApiStrategy {
+        - restTemplate: RestTemplate
+        - JOOM_API_BASE: String
+        + getPlatformName(): String
+        + fetchProducts(credential, page, pageSize): Map
+        + createProduct(credential, productData): Map
+        - createHeaders(credential): HttpHeaders
+    }
+    
+    class AmazonApiStrategy {
+        + getPlatformName(): String
+        + fetchProducts(credential, page, pageSize): Map
+        + createProduct(credential, productData): Map
+    }
+    
+    class PlatformApiStrategyFactory {
+        - strategies: List<PlatformApiStrategy>
+        - strategyMap: Map<String, PlatformApiStrategy>
+        + getStrategy(platformName: String): PlatformApiStrategy
+        + isSupported(platformName: String): boolean
+        + getSupportedPlatforms(): Set<String>
+    }
+    
+    PlatformApiStrategy <|.. JoomApiStrategy
+    PlatformApiStrategy <|.. AmazonApiStrategy
+    PlatformApiStrategyFactory o-- PlatformApiStrategy
+    
+    note right of PlatformApiStrategy
+        **STRATEGY PATTERN**
+        Interchangeable algorithms
+        for different e-commerce platforms
+    end note
+}
+
+' ===== CORE DOMAIN CLASSES =====
+package "Core Domain" {
+    class User {
+        - id: Long
+        - name: String
+        - email: String
+        - password: String
+        - provider: AuthProvider
+        + login()
+        + register()
+    }
+    
+    class JoomTransferService {
+        - joomProductService: JoomProductService
+        - platformCredentialService: PlatformCredentialService
+        - transferEventPublisher: TransferEventPublisher
+        + transferProduct(sellerId, sourceCredId, targetCredId, productId): Map
+    }
+    
+    class TransferLog {
+        - id: Long
+        - seller: User
+        - sourcePlatform: String
+        - destinationPlatform: String
+        - status: String
+        - message: String
+        - createdAt: LocalDateTime
+    }
+}
+
+' ===== RELATIONSHIPS BETWEEN PATTERNS AND CORE =====
+User "1" -- "many" PlatformCredential : owns >
+User "1" -- "many" TransferLog : creates >
+
+JoomTransferService --> TransferEventPublisher : uses >
+JoomTransferService --> PlatformApiStrategyFactory : uses >
+JoomTransferService --> PlatformCredential : uses >
+
+PlatformApiStrategy --> PlatformCredential : uses >
+ApiClientConfigManager --> JoomApiStrategy : provides RestTemplate >
+
+legend right
+    |= Pattern |= Classes |
+    | Singleton | ApiClientConfigManager |
+    | Builder | PlatformCredential.Builder |
+    | Observer | TransferEventPublisher, TransferEvent, TransferEventListener |
+    | Factory | OAuth2UserInfoFactory |
+    | Strategy | PlatformApiStrategy, JoomApiStrategy, AmazonApiStrategy |
+endlegend
+
+@enduml
