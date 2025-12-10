@@ -9,7 +9,7 @@ import { ForbiddenComponent } from './shared/components/forbidden/forbidde.compo
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: '/selernexus',
     pathMatch: 'full'
   },
   {

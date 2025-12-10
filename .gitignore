@@ -117,3 +117,7 @@ coverage/
 
 # Test output
 test-output/
+
+# Documentation markdown files (keep out of git)
+*.md
+!README.md

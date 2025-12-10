@@ -1,0 +1,121 @@
+@startuml
+title Seller Nexus - Activity Diagram with Design Patterns
+
+|Seller|
+start
+:Login/Register;
+
+|System|
+:Authenticate user (JWT);
+
+|Seller|
+:Connect to Joom platform;
+:Provide API credentials;
+
+|System|
+floating note right: **BUILDER PATTERN**\nPlatformCredential.Builder\nfor complex credential object
+:Build PlatformCredential using Builder Pattern;
+:Store credentials in database;
+
+|Seller|
+:Select source platform (Joom);
+:Select destination platform (Amazon);
+:Choose products to transfer;
+
+|System|
+floating note right: **SINGLETON PATTERN**\nApiClientConfigManager.getInstance()\nfor shared configuration
+:Get ApiClientConfigManager instance (Singleton);
+
+floating note right: **OBSERVER PATTERN**\nTransferEventPublisher\npublishes event to all listeners
+:Publish "Transfer Started" event;
+
+|Observer/Listener|
+:Log transfer started event;
+:Send real-time notification to UI;
+
+|System|
+floating note right: **STRATEGY PATTERN**\nPlatformApiStrategyFactory\nselects appropriate strategy
+:Get PlatformApiStrategy for source platform;
+
+partition "Fetch Products from Source" {
+    if (Strategy available?) then (yes)
+        :JoomApiStrategy.fetchProducts();
+        :Publish "Products Fetched" event;
+    else (no)
+        :Throw exception;
+        :Publish "Transfer Failed" event;
+        stop
+    endif
+}
+
+|Observer/Listener|
+:Log products fetched event;
+
+|System|
+:Map source product format to destination format;
+
+floating note right: **STRATEGY PATTERN**\nRuntime selection of\ndestination platform strategy
+:Get PlatformApiStrategy for destination platform;
+
+partition "Upload to Destination" {
+    :Prepare product payload;
+    
+    if (Destination is Amazon?) then (yes)
+        :Use AmazonApiStrategy;
+    else (Joom or other)
+        :Use JoomApiStrategy;
+    endif
+    
+    :strategy.createProduct(credential, payload);
+    
+    if (Upload successful?) then (yes)
+        floating note right: **OBSERVER PATTERN**\nNotify all interested observers
+        :Publish "Product Uploaded" event;
+        
+        |Observer/Listener|
+        :Update progress bar;
+        :Log product upload;
+        
+        |System|
+        :Record success in TransferLog;
+        :Publish "Transfer Completed" event;
+        
+        |Observer/Listener|
+        :Send completion notification;
+        :Update dashboard statistics;
+        
+        |Seller|
+        :View success message;
+        :See transferred products;
+    else (no)
+        :Publish "Product Failed" event;
+        
+        |Observer/Listener|
+        :Log error details;
+        
+        |System|
+        :Record error in TransferLog;
+        :Publish "Transfer Failed" event;
+        
+        |Seller|
+        :View error message;
+        :Retry or cancel;
+    endif
+}
+
+|Seller|
+:Review transfer logs;
+:Logout;
+
+stop
+
+legend right
+    |= Pattern |= Usage in Flow |
+    | **Singleton** | ApiClientConfigManager - single config instance |
+    | **Builder** | PlatformCredential.Builder - credential construction |
+    | **Observer** | TransferEventPublisher/Listener - event notifications |
+    | **Factory** | OAuth2UserInfoFactory - OAuth user creation (not shown) |
+    | **Strategy** | PlatformApiStrategy - platform-specific operations |
+endlegend
+
+@enduml
