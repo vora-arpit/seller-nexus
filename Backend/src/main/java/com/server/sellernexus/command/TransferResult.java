@@ -17,7 +17,6 @@ public class TransferResult {
         this.timestamp = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public String getProductId() {
         return productId;
     }

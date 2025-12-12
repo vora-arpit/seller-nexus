@@ -27,11 +27,8 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
 
 	private ApiInfo metaData() {
 		return new ApiInfoBuilder()
-				.title("CRM1 REST API")
-//				.description("\"REST API for CRM1\"")
+				.title("SellerNexus REST API")
 				.version("1.0.0")
-//				.license("Apache License Version 2.0")
-//				.licenseUrl("https://www.apache.org/licenses/LICENSE-2.0\"")
 				.build();
 	}
 
@@ -44,10 +41,4 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
 				.addResourceLocations("classpath:/META-INF/resources/webjars/");
 	}
 
-	// uncomment to disable try-it-out button on swagger-ui
-//	@Bean
-//	public UiConfiguration tryItOutConfig() {
-//		final String[] methodsWithTryItOutButton = { "get" };
-//		return UiConfigurationBuilder.builder().supportedSubmitMethods(methodsWithTryItOutButton).build();
-//	}
 }

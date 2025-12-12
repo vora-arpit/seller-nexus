@@ -53,7 +53,6 @@ public class JoomAuthController extends BaseJoomController {
         
         String url = authService.getAuthorizationUrl(clientId, userId, label);
         
-        // Store client secret transiently if provided
         if (clientSecret != null && !clientSecret.isEmpty()) {
             try {
                 java.net.URI u = new java.net.URI(url);

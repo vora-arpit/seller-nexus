@@ -14,7 +14,7 @@ import static java.lang.annotation.ElementType.PARAMETER;
  * Annotation that is used to resolve {@link Authentication#getPrincipal()}
  * to a method argument.
  *
- * @author Ilia Tretiak
+ * @author Arpit Vora
  * @version 1.0
  * @see AuthenticationPrincipal
  */

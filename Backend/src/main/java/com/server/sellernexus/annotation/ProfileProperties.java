@@ -12,7 +12,7 @@ import static java.lang.annotation.ElementType.*;
  * This annotation may be used on a field or parameter as a qualifier for
  * custom {@link java.util.Properties} bean.
  *
- * @author Ilia Tretiak
+ * @author Arpit Vora
  * @version 1.0
  * @see Qualifier
  */
