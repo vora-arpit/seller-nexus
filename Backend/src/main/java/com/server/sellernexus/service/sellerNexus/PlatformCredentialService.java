@@ -19,6 +19,10 @@ public class PlatformCredentialService {
 
     private final PlatformCredentialRepository credentialRepo;
 
+    public List<PlatformCredential> findAll() {
+        return credentialRepo.findAll();
+    }
+
     public PlatformCredential save(PlatformCredential credential) {
         return credentialRepo.save(credential);
     }
@@ -26,6 +30,10 @@ public class PlatformCredentialService {
     public PlatformCredential findById(Long id) {
         return credentialRepo.findById(id)
             .orElseThrow(() -> new RuntimeException("Credential not found with id: " + id));
+    }
+
+    public void deleteById(Long id) {
+        credentialRepo.deleteById(id);
     }
 
     public PlatformCredential findBySellerAndPlatform(Integer sellerId, String platform) {
@@ -68,6 +76,7 @@ public class PlatformCredentialService {
             summary.put("label", c.getLabel());
             summary.put("externalMerchantId", c.getExternalMerchantId());
             summary.put("createdAt", c.getCreatedAt());
+            summary.put("sellerId", c.getSeller() != null ? c.getSeller().getId() : null);
             result.add(summary);
         }
 
