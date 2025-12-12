@@ -1,0 +1,214 @@
+@startuml
+title Seller Nexus - Activity Diagram with Circuit Breaker & Retry
+
+start
+
+:User visits application;
+:Login / Register;
+:Authenticate (JWT);
+
+partition "Joom OAuth Connection" {
+    :Click "Connect Joom";
+    :Redirect to Joom OAuth;
+    :User authorizes application;
+    :Receive authorization code;
+    :Exchange code for access tokens;
+    :Build PlatformCredential (Builder Pattern);
+    :Save credential to database;
+    :Display "Connected" success message;
+}
+
+partition "View Products" {
+    :Navigate to Products page;
+    :Select credential from dropdown;
+    :Fetch products from Joom API;
+    
+    fork
+        :Circuit Breaker checks state;
+        if (State is CLOSED?) then (yes)
+            :Execute API call with Retry;
+            
+            repeat
+                :Attempt API call;
+                
+                if (Success?) then (yes)
+                    :Circuit Breaker: recordSuccess();
+                    :Return products;
+                    stop
+                else if (Network Error?) then (yes)
+                    :Calculate exponential backoff;
+                    note right: 1s → 2s → 4s → 8s → 16s
+                    :Wait for delay;
+                    
+                else if (Client Error 4xx?) then (yes)
+                    :Skip retry (permanent error);
+                    :Circuit Breaker: recordFailure();
+                    :Return error;
+                    stop
+                endif
+                
+            repeat while (Attempts < 5?) is (yes)
+            ->no;
+            :All retries exhausted;
+            :Circuit Breaker: recordFailure();
+            :Return error;
+            
+        else if (State is OPEN?) then (yes)
+            if (Timeout elapsed (60s)?) then (yes)
+                :Transition to HALF_OPEN;
+                :Attempt one test call;
+                
+                if (Test successful?) then (yes)
+                    :Transition to CLOSED;
+                    :Return success;
+  else (no)
+                    :Remain OPEN;
+                    :Return error;
+    endif
+                
+            else (no)
+                :Reject immediately;
+                :Return CircuitBreakerOpenException;
+  endif
+endif
+    fork end
+    
+    :Display products in table;
+}
+
+partition "Bulk Transfer (Part 2)" {
+    :Select source & target credentials;
+    :Load products for source;
+    :Select multiple products (max 50);
+    :Click "Transfer Products";
+    
+    :Validate request;
+    
+    fork
+        :Create ProductTransferCommand for each product;
+    fork end
+    
+    :Add all commands to BulkTransferExecutor;
+    :Execute commands in parallel (5 threads);
+    note right: Command Pattern
+    
+    fork
+        partition "Thread 1" {
+            :Execute Command 1;
+            :Create PENDING log;
+            
+            fork
+                :Fetch source product;
+                if (Circuit Breaker CLOSED?) then (yes)
+                    if (API Success?) then (yes)
+                        :Build create payload;
+                        :Create product on target;
+                        
+                        if (Create Success?) then (yes)
+                            :Mark log as SUCCESS;
+                            :Return success result;
+                        else if (Product exists?) then (yes)
+                            :Circuit Breaker: recordFailure();
+                            note right: Count: 1/5
+                            :Mark log as FAILED;
+                            :Return failure result;
+                        endif
+                    else (API failure)
+                        :Circuit Breaker: recordFailure();
+                        if (Failure count >= 5?) then (yes)
+                            :Transition to OPEN;
+                            note right: System DOWN
+                        endif
+                        :Mark log as FAILED;
+                        :Return failure result;
+                    endif
+                else (OPEN)
+                    :Reject immediately;
+                    :Mark log as FAILED;
+                    :Return failure result;
+                endif
+            fork end
+        }
+fork again
+        partition "Thread 2" {
+            :Execute Command 2;
+            note right: Similar flow
+        }
+    fork again
+        partition "Thread 3" {
+            :Execute Command 3;
+            note right: Similar flow
+        }
+    fork again
+        partition "Thread 4" {
+            :Execute Command 4;
+            note right: Similar flow
+        }
+    fork again
+        partition "Thread 5" {
+            :Execute Command 5;
+            note right: Similar flow
+        }
+    fork end
+    
+    :Aggregate all results;
+    :Count success & failure;
+    :Return bulk transfer response;
+    :Display summary to user;
+}
+
+partition "Health Monitor (Part 2)" {
+    :Navigate to Health Monitor;
+    :Fetch circuit breaker states;
+    
+    if (Any breaker OPEN?) then (yes)
+        :Display "System DOWN" (red);
+        :Show failure count & last failure time;
+        :Enable "Reset Breaker" button;
+    else (no)
+        :Display "System UP" (green);
+        :Show all breakers in CLOSED state;
+endif
+
+    :Auto-refresh every 30 seconds;
+    note right: Real-time monitoring
+    
+    if (User clicks Reset?) then (yes)
+        :Call reset endpoint;
+        :Set state = CLOSED;
+        :Reset failure count = 0;
+        :Refresh health display;
+endif
+}
+
+partition "View Transfer Logs" {
+    :Navigate to Transfer Logs;
+    :Fetch logs by sellerId;
+    :Display logs ordered by timestamp;
+    :Filter by status (ALL/SUCCESS/FAILED);
+    :Click row to expand details;
+    :Show request/response payloads;
+    :Click "Refresh" to reload logs;
+}
+
+:User logs out;
+
+stop
+
+legend right
+**DESIGN PATTERNS IN FLOW:**
+• **Builder** - PlatformCredential construction
+• **Command** - Bulk transfer parallel execution
+• **Circuit Breaker** - CLOSED → OPEN → HALF_OPEN states
+• **Retry** - Exponential backoff on failures
+
+**PART 2 FEATURES:**
+• Bulk transfer (max 50 products)
+• Parallel execution (5 threads)
+• Circuit breaker protection
+• Health monitoring dashboard
+• Circuit breaker reset
+• Transfer logs with sellerId
+endlegend
+
+@enduml
