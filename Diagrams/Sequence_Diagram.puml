@@ -1,0 +1,401 @@
+@startuml
+title Seller Nexus - Complete Sequence Diagram
+
+actor User
+participant "Angular UI" as UI
+participant "AuthController" as Auth
+participant "JoomAuthController" as JAuth
+participant "JoomProductController" as JProd
+participant "TransferV2Controller" as V2
+participant "BulkTransferExecutor\n<<Command>>" as Executor
+participant "ProductTransferCommand\n<<Command>>" as Cmd
+participant "JoomTransferService" as Transfer
+participant "JoomProductService\n<<Circuit Breaker>>" as Product
+participant "CircuitBreaker\n<<CB Pattern>>" as CB
+participant "RetryPolicy\n<<Retry Pattern>>" as Retry
+participant "TransferLogService" as Log
+participant "PlatformCredentialService" as Cred
+participant "<<Builder>>\nBuilder" as Builder
+participant "Joom API" as API
+participant "Database" as DB
+
+== Authentication ==
+
+User -> UI : Login
+activate UI
+UI -> Auth : POST /auth/login
+activate Auth
+Auth --> UI : JWT token
+deactivate Auth
+UI --> User : Dashboard
+deactivate UI
+
+== Connect Joom (OAuth + Builder Pattern) ==
+
+User -> UI : Connect Joom
+activate UI
+UI -> JAuth : GET /authorize
+activate JAuth
+
+note right of Builder: **BUILDER PATTERN**
+JAuth -> Builder : builder()\n.platform("JOOM")\n.seller(user)\n.build()
+activate Builder
+Builder --> JAuth : credential
+deactivate Builder
+
+JAuth --> UI : OAuth URL
+deactivate JAuth
+UI --> User : Redirect to Joom
+deactivate UI
+
+User -> UI : Authorize & callback
+activate UI
+UI -> JAuth : GET /callback?code=xyz
+activate JAuth
+JAuth -> JAuth : Exchange tokens
+JAuth -> Cred : save(credential)
+activate Cred
+Cred -> DB : INSERT credential
+activate DB
+DB --> Cred : saved
+deactivate DB
+Cred --> JAuth : success
+deactivate Cred
+JAuth --> UI : Connected
+deactivate JAuth
+UI --> User : Success
+deactivate UI
+
+== Fetch Products ==
+
+User -> UI : View products
+activate UI
+UI -> JProd : GET /products?credentialId=74
+activate JProd
+JProd -> Cred : findById(74)
+activate Cred
+Cred --> JProd : credential
+deactivate Cred
+
+JProd -> Product : fetchProducts(cred, page, size)
+activate Product
+
+note right of Product: **CIRCUIT BREAKER + RETRY**\nIntegrated in service
+
+Product -> CB : execute(() -> retry(...))
+activate CB
+CB -> CB : Check state = CLOSED
+
+CB -> Retry : execute(() -> API call)
+activate Retry
+
+loop Max 5 attempts
+    Retry -> API : GET /api/v3/products
+    activate API
+    
+    alt Success
+        API --> Retry : 200 OK products
+        deactivate API
+        Retry --> CB : products
+        deactivate Retry
+        CB -> CB : recordSuccess()
+        CB --> Product : products
+        deactivate CB
+        
+    else Network Error
+        API --> Retry : NoRouteToHost
+        deactivate API
+        Retry -> Retry : Backoff: 1s→2s→4s→8s→16s
+        note right: **EXPONENTIAL BACKOFF**
+        
+    else Timeout Exceeded
+        Retry --> CB : RetryExhaustedException
+        deactivate Retry
+        CB -> CB : recordFailure()\nfailureCount++
+        CB --> Product : Exception
+        deactivate CB
+    end
+end
+
+Product --> JProd : products
+deactivate Product
+JProd --> UI : products list
+deactivate JProd
+UI --> User : Display table
+deactivate UI
+
+== Bulk Transfer (Command Pattern) ==
+
+User -> UI : Select products\nClick "Transfer Products"
+activate UI
+UI -> V2 : POST /api/v2/transfer/bulk\n{sellerId, sourceId, targetId,\nproductIds[]}
+activate V2
+
+V2 -> V2 : Validate (max 50)
+
+loop For each productId
+    V2 -> Cmd : new Command(id, sourceId, targetId, sellerId)
+    activate Cmd
+    Cmd --> V2 : command
+    deactivate Cmd
+    V2 -> Executor : addCommand(command)
+    activate Executor
+    deactivate Executor
+end
+
+V2 -> Executor : executeParallel()
+activate Executor
+
+note right of Executor: **COMMAND PATTERN**\nParallel execution\n5 thread pool
+
+par Thread 1 - Product A
+    Executor -> Cmd : execute()
+    activate Cmd
+    
+    Cmd -> Transfer : transferProduct(sellerId,\nsourceCred, targetCred, productId)
+    activate Transfer
+    
+    Transfer -> Log : createPending(...)
+    activate Log
+    Log -> DB : INSERT transfer_log\nSTATUS='PENDING'
+    activate DB
+    DB --> Log : log.id
+    deactivate DB
+    Log --> Transfer : TransferLog
+    deactivate Log
+    
+    Transfer -> Product : fetchProductById(cred, id)
+    activate Product
+    
+    Product -> CB : execute(() -> retry(...))
+    activate CB
+    
+    alt CB State = CLOSED
+        CB -> Retry : execute(() -> API call)
+        activate Retry
+        Retry -> API : GET /products?id=xxx
+        activate API
+        API --> Retry : 200 OK product
+        deactivate API
+        Retry --> CB : product
+        deactivate Retry
+        CB -> CB : recordSuccess()
+        CB --> Product : product
+        deactivate CB
+        
+        Product --> Transfer : sourceProduct
+        deactivate Product
+        
+        Transfer -> Transfer : buildCreatePayload(sourceProduct)
+        
+        Transfer -> Product : createProduct(targetCred, payload)
+        activate Product
+        Product -> CB : execute(() -> retry(...))
+        activate CB
+        
+        alt CB State = CLOSED
+            CB -> Retry : execute(() -> API call)
+            activate Retry
+            Retry -> API : POST /products/create {payload}
+            activate API
+            
+            alt Success
+                API --> Retry : 200 OK created
+                deactivate API
+                Retry --> CB : created
+                deactivate Retry
+                CB -> CB : recordSuccess()
+                CB --> Product : created
+                deactivate CB
+                
+                Product --> Transfer : createdProduct
+                deactivate Product
+                
+                Transfer -> Log : markSuccess(logId, targetId, response)
+                activate Log
+                Log -> DB : UPDATE transfer_log\nSTATUS='SUCCESS'
+                activate DB
+                DB --> Log : updated
+                deactivate DB
+                deactivate Log
+                
+                Transfer --> Cmd : success response
+                deactivate Transfer
+                Cmd --> Executor : TransferResult(success=true)
+                deactivate Cmd
+                
+            else Product Exists (4xx)
+                API --> Retry : 400 product_already_exists
+                deactivate API
+                Retry -> Retry : isClientError()=true\nSkip retry
+                Retry --> CB : Exception
+                deactivate Retry
+                CB -> CB : recordFailure()\nfailureCount++
+                
+                note right of CB: **After 5 failures:**\nState → OPEN
+                
+                CB --> Product : Exception
+                deactivate CB
+                Product --> Transfer : Exception
+                deactivate Product
+                
+                Transfer -> Log : markFailure(logId, error)
+                activate Log
+                Log -> DB : UPDATE transfer_log\nSTATUS='FAILED'
+                activate DB
+                DB --> Log : updated
+                deactivate DB
+                deactivate Log
+                
+                Transfer --> Cmd : Exception
+                deactivate Transfer
+                Cmd --> Executor : TransferResult(success=false)
+                deactivate Cmd
+            end
+            
+        else CB State = OPEN
+            CB -> CB : Check timeout (60s)
+            
+            alt Timeout elapsed
+                CB -> CB : Transition to HALF_OPEN
+                note right: Testing recovery
+                CB -> Retry : execute(() -> test call)
+                activate Retry
+                Retry -> API : POST /products/create
+                activate API
+                
+                alt Service Recovered
+                    API --> Retry : 200 OK
+                    deactivate API
+                    Retry --> CB : success
+                    deactivate Retry
+                    CB -> CB : recordSuccess()\nState → CLOSED
+                    CB --> Product : response
+                    deactivate CB
+                    
+                else Still Failing
+                    API --> Retry : Error
+                    deactivate API
+                    Retry --> CB : Exception
+                    deactivate Retry
+                    CB -> CB : recordFailure()\nState → OPEN
+                    CB --> Product : Exception
+                    deactivate CB
+                end
+                
+            else Timeout not elapsed
+                CB --> Product : CircuitBreakerOpenException
+                deactivate CB
+                Product --> Transfer : Exception
+                deactivate Product
+                
+                Transfer -> Log : markFailure(logId,\n"Circuit breaker OPEN")
+                activate Log
+                Log -> DB : UPDATE STATUS='FAILED'
+                activate DB
+                DB --> Log : updated
+                deactivate DB
+                deactivate Log
+                
+                Transfer --> Cmd : Exception
+                deactivate Transfer
+                Cmd --> Executor : TransferResult(success=false)
+                deactivate Cmd
+            end
+        end
+    end
+
+else Thread 2 - Product B
+    note right: Parallel execution\nsimilar flow
+    
+else Thread 3 - Product C
+    note right: Parallel execution\nsimilar flow
+    
+else Thread 4 - Product D
+    note right: Parallel execution\nsimilar flow
+    
+else Thread 5 - Product E
+    note right: Parallel execution\nsimilar flow
+end
+
+Executor -> Executor : Aggregate results
+
+Executor --> V2 : List<TransferResult>
+deactivate Executor
+
+V2 -> V2 : Count success/failure
+
+V2 --> UI : {\n  totalProducts: 50,\n  successCount: 30,\n  failureCount: 20,\n  results: [...]\n}
+deactivate V2
+
+UI --> User : Show summary
+deactivate UI
+
+== Health Monitor ==
+
+User -> UI : View Health Monitor
+activate UI
+UI -> V2 : GET /api/v2/transfer/health
+activate V2
+
+V2 -> CB : getAllBreakers()
+activate CB
+CB --> V2 : Map<String, CircuitBreaker>
+deactivate CB
+
+V2 -> V2 : Check if any OPEN
+
+alt Any breaker OPEN
+    V2 --> UI : {\n  status: "DOWN",\n  circuitBreakers: {\n    "JOOM-API": {\n      state: "OPEN",\n      failureCount: 5,\n      lastFailureTime: "..."\n    }\n  }\n}
+    deactivate V2
+    UI --> User : Display "System DOWN" (red)
+    
+else All breakers CLOSED
+    V2 --> UI : {status: "UP", ...}
+    deactivate V2
+    UI --> User : Display "System UP" (green)
+end
+deactivate UI
+
+== Reset Circuit Breaker ==
+
+User -> UI : Click "Reset Breaker"
+activate UI
+UI -> V2 : POST /circuit-breaker/JOOM-API/reset
+activate V2
+
+V2 -> CB : reset("JOOM-API")
+activate CB
+CB -> CB : state = CLOSED\nfailureCount = 0\nlastFailureTime = null
+CB --> V2 : success
+deactivate CB
+
+V2 --> UI : {message: "Reset successful"}
+deactivate V2
+UI --> User : Success notification
+deactivate UI
+
+legend right
+**DESIGN PATTERNS SHOWN:**
+1. **Builder** - PlatformCredential construction
+2. **Command** - ProductTransferCommand + BulkTransferExecutor
+3. **Circuit Breaker** - Prevents cascading failures
+4. **Retry** - Exponential backoff (1s→2s→4s→8s→16s)
+
+**KEY FLOWS:**
+• OAuth authentication with Joom
+• Product fetching with resilience
+• Bulk transfer (parallel, max 50)
+• Circuit breaker protection on all API calls
+• Health monitoring with auto-refresh
+• Manual circuit breaker reset
+
+**FAILURE HANDLING:**
+• Network errors → Retry with backoff
+• 4xx errors → Skip retry (permanent)
+• 5 failures → Circuit breaker OPEN
+• OPEN → Block requests for 60s
+• HALF_OPEN → Test recovery
+endlegend
+
+@enduml

@@ -1,0 +1,69 @@
+<div class="health-monitor-container">
+  <h1>Circuit Breaker Health Monitor</h1>
+  <p class="subtitle">Monitor the health and status of circuit breakers</p>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading" *ngIf="loading && !healthData">
+    Loading health data...
+  </div>
+
+  <div *ngIf="healthData" class="health-content">
+    <div class="system-status">
+      <div class="status-card">
+        <h2>System Status</h2>
+        <div class="status-badge" [class.status-up]="healthData.status === 'UP'">
+          {{ healthData.status }}
+        </div>
+      </div>
+      <div class="status-card">
+        <h2>Circuit Breakers</h2>
+        <div class="stat-value">{{ getCircuitBreakers().length }}</div>
+        <p class="stat-label">monitored</p>
+      </div>
+    </div>
+
+    <div class="circuit-breakers-section">
+      <h2>Circuit Breaker Details</h2>
+      
+      <div *ngFor="let breaker of getCircuitBreakers()" class="breaker-card">
+        <div class="breaker-header">
+          <h3>{{ breaker.name }}</h3>
+          <span class="state-badge" [ngClass]="getStateClass(breaker.state)">
+            {{ breaker.state }}
+          </span>
+        </div>
+
+        <div class="breaker-details">
+          <div class="detail-item">
+            <span class="detail-label">Failure Count:</span>
+            <span class="detail-value">{{ breaker.failureCount }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Last Failure:</span>
+            <span class="detail-value">
+              {{ breaker.lastFailureTime ? (breaker.lastFailureTime | date:'short') : 'Never' }}
+            </span>
+          </div>
+        </div>
+
+        <button *ngIf="breaker.state === 'OPEN'" 
+                class="btn btn-primary"
+                (click)="resetCircuitBreaker(breaker.name)">
+          Reset Breaker
+        </button>
+      </div>
+
+      <div *ngIf="getCircuitBreakers().length === 0" class="no-data">
+        No circuit breakers found
+      </div>
+    </div>
+
+    <div class="auto-refresh-info">
+      <p>Auto-refreshing every 30 seconds</p>
+      <button class="btn btn-secondary" (click)="loadHealth()">Refresh Now</button>
+    </div>
+  </div>
+</div>

@@ -4,6 +4,8 @@ import { JoomLoginComponent } from './joom-login/joom-login.component';
 import { JoomProductsComponent } from './joom-products/joom-products.component';
 import { JoomTransferComponent } from './joom-transfer/joom-transfer.component';
 import { JoomTransferLogsComponent } from './joom-transfer-logs/joom-transfer-logs.component';
+import { BulkTransferComponent } from './bulk-transfer/bulk-transfer.component';
+import { HealthMonitorComponent } from './health-monitor/health-monitor.component';
 
 const routes: Routes = [
   {
@@ -25,6 +27,16 @@ const routes: Routes = [
     path: 'joom-transfer-logs',
     component: JoomTransferLogsComponent,
     data: { title: 'Transfer Logs' }
+  },
+  {
+    path: 'bulk-transfer',
+    component: BulkTransferComponent,
+    data: { title: 'Bulk Transfer' }
+  },
+  {
+    path: 'health-monitor',
+    component: HealthMonitorComponent,
+    data: { title: 'Health Monitor' }
   }
 ];
 

@@ -1,0 +1,99 @@
+<div class="container">
+  <div class="header">
+    <h1>Bulk Transfer</h1>
+    <p class="subtitle">Bulk Transfer Products</p>
+  </div>
+
+  <div class="actions-bar">
+    <a routerLink="/selernexus/joom-transfer-logs" class="btn btn-secondary">View Transfer Logs</a>
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Source Platform</label>
+      <select [(ngModel)]="sourceAccountId" (change)="fetchProducts()">
+        <option *ngFor="let c of credentials" [ngValue]="c.id">{{ c.label || ('Account ' + c.id) }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Target Platform</label>
+      <select [(ngModel)]="targetAccountId">
+        <option *ngFor="let c of credentials" [ngValue]="c.id">{{ c.label || ('Account ' + c.id) }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label style="display: flex; align-items: center;">
+      <input type="checkbox" style="margin-right: 8px;">
+      Rollback all on failure
+    </label>
+  </div>
+
+  <div class="products-section" *ngIf="products.length > 0">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h2 style="margin: 0;">Select Products to Transfer ({{ selectedProducts.length }} selected)</h2>
+      <button class="btn btn-primary" (click)="bulkTransfer()" [disabled]="selectedProducts.length < 2 || !targetAccountId || loading">
+        {{ loading ? 'Transferring...' : 'Transfer ' + selectedProducts.length + ' Products' }}
+      </button>
+    </div>
+    <table class="products-table">
+      <thead>
+        <tr>
+          <th width="50">
+            <input type="checkbox" 
+                   [checked]="allSelected()" 
+                   [indeterminate]="someSelected()"
+                   (change)="toggleAll()">
+          </th>
+          <th>Product ID</th>
+          <th>Product Name</th>
+          <th>Price</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products" (click)="toggleProduct(product.id)" style="cursor: pointer;" [class.selected]="isSelected(product.id)">
+          <td (click)="$event.stopPropagation()">
+            <input type="checkbox" [checked]="isSelected(product.id)" (change)="toggleProduct(product.id)">
+          </td>
+          <td>{{ product.id }}</td>
+          <td>{{ product.name || product.title || 'Unnamed Product' }}</td>
+          <td>
+            <span *ngIf="product.price?.min && product.price?.max">
+              ${{ product.price.min }} - ${{ product.price.max }}
+            </span>
+            <span *ngIf="!product.price?.min && !product.price?.max && product.price">
+              ${{ product.price }}
+            </span>
+            <span *ngIf="!product.price">N/A</span>
+          </td>
+          <td>
+            <span class="badge badge-success">Available</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="loading" class="loading-text">
+    Loading products...
+  </div>
+
+  <div *ngIf="transferResult" class="alert alert-success" style="margin-top: 20px;">
+    <h3>Transfer Complete!</h3>
+    <p>Success: {{ transferResult.successCount }} | Failed: {{ transferResult.failureCount }} | Total: {{ transferResult.totalProducts }}</p>
+    
+    <div class="result-details" style="margin-top: 15px;">
+      <div *ngFor="let result of transferResult.results" style="padding: 5px 0; border-bottom: 1px solid #eee;">
+        <span [style.color]="result.success ? 'green' : 'red'">{{ result.success ? '✓' : '✗' }}</span>
+        <strong>{{ result.productId }}</strong> - {{ result.message }}
+      </div>
+    </div>
+  </div>
+</div>
